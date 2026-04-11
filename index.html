@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEO Meta Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface2: #181818;
+      --border: #242424;
+      --border2: #2e2e2e;
+      --text: #f0f0f0;
+      --text2: #888;
+      --text3: #555;
+      --accent: #e8ff47;
+      --accent-dim: rgba(232,255,71,0.08);
+      --accent-dim2: rgba(232,255,71,0.15);
+      --ok: #3ecf8e;
+      --ok-bg: rgba(62,207,142,0.08);
+      --warn: #f5a524;
+      --warn-bg: rgba(245,165,36,0.08);
+      --danger: #f03e3e;
+      --danger-bg: rgba(240,62,62,0.08);
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+ 
+    html { font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+ 
+    /* HEADER */
+    header {
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--text2);
+    }
+    .logo-dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.5; transform:scale(0.7); }
+    }
+    .badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      color: var(--text3);
+      letter-spacing: 0.05em;
+    }
+ 
+    /* HERO */
+    .hero {
+      padding: 5rem 2.5rem 3rem;
+      max-width: 780px;
+    }
+    .hero-kicker {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-kicker::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 1px;
+      background: var(--accent);
+    }
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+    h1 strong {
+      font-weight: 500;
+      color: var(--accent);
+    }
+    .hero-sub {
+      font-size: 15px;
+      color: var(--text2);
+      font-weight: 300;
+      line-height: 1.7;
+      max-width: 480px;
+    }
+ 
+    /* MAIN */
+    main {
+      flex: 1;
+      padding: 0 2.5rem 4rem;
+      max-width: 860px;
+      width: 100%;
+    }
+ 
+    /* FIELDS */
+    .fields-grid {
+      display: grid;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+ 
+    .field-block {
+      background: var(--surface);
+      padding: 1.5rem 1.75rem;
+      transition: background 0.15s;
+    }
+    .field-block:hover { background: var(--surface2); }
+ 
+    .field-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .field-meta { display: flex; flex-direction: column; gap: 3px; }
+    .field-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+    .field-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 0.02em;
+    }
+    .field-guide {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+      white-space: nowrap;
+    }
+ 
+    textarea, input[type="text"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: var(--sans);
+      color: var(--text);
+      resize: none;
+      outline: none;
+      line-height: 1.6;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    textarea:focus, input[type="text"]:focus {
+      border-color: var(--border2);
+    }
+    textarea { min-height: 72px; }
+    input[type="text"] { height: 42px; }
+ 
+    /* COUNTER ROW */
+    .counter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.6rem;
+      gap: 12px;
+    }
+ 
+    /* BAR */
+    .bar-track {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.2s ease, background-color 0.2s ease;
+      background: var(--text3);
+    }
+ 
+    /* PILL */
+    .pill {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      transition: all 0.2s;
+      background: var(--surface2);
+      color: var(--text3);
+      border: 1px solid var(--border);
+      min-width: 62px;
+      text-align: center;
+    }
+    .pill.ok   { background: var(--ok-bg);   color: var(--ok);     border-color: rgba(62,207,142,0.2); }
+    .pill.warn { background: var(--warn-bg);  color: var(--warn);   border-color: rgba(245,165,36,0.2); }
+    .pill.over { background: var(--danger-bg);color: var(--danger); border-color: rgba(240,62,62,0.2); }
+ 
+    /* HINT */
+    .hint {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 5px;
+      min-height: 16px;
+      font-family: var(--mono);
+      letter-spacing: 0.01em;
+      transition: color 0.2s;
+    }
+    .hint.ok   { color: var(--ok); }
+    .hint.warn { color: var(--warn); }
+    .hint.over { color: var(--danger); }
+ 
+    /* FOOTER */
+    footer {
+      padding: 1.5rem 2.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-stat {
+      display: flex;
+      gap: 2rem;
+    }
+    .stat-item { display: flex; flex-direction: column; gap: 2px; }
+    .stat-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; }
+    .stat-val { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--text2); transition: color 0.2s; }
+    .stat-val.lit { color: var(--accent); }
+    .footer-note { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+ 
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      header { padding: 1.25rem 1.25rem; }
+      .hero { padding: 3rem 1.25rem 2rem; }
+      main { padding: 0 1.25rem 3rem; }
+      footer { padding: 1.25rem; }
+      .footer-stat { gap: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+ 
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    SEO META CHECKER
+  </div>
+  <div class="badge">v1.0</div>
+</header>
+ 
+<div class="hero">
+  <div class="hero-kicker">Meta tag analyzer</div>
+  <h1>Write it.<br><strong>Check it.</strong> Ship it.</h1>
+  <p class="hero-sub">Paste your SEO meta content and instantly see if it fits Google's recommended character limits — no truncation surprises.</p>
+</div>
+ 
+<main>
+  <div class="fields-grid">
+ 
+    <div class="field-block">
+      <div class="field-head">
+        <div class="field-meta">
+          <span class="field-name">Title tag</span>
+          <span class="field-tag">&lt;title&gt;...&lt;/title&gt;</span>
+        </div>
+        <span class="field-guide">ideal: 50–60 chars</span>
+      </div>
+      <input type="text" id="f-title" placeholder="Homepage | Brand Name" oninput="check(this,'title')">
+      <div class="counter-row">
+        <div class="bar-track"><div class="bar-fill" id="bar-title"></div></div>
+        <div class="pill" id="pill-title">0/60</div>
+      </div>
+      <div class="hint" id="hint-title"></div>
+    </div>
+ 
+    <div class="field-block">
+      <div class="field-head">
+        <div class="field-meta">
+          <span class="field-name">Meta description</span>
+          <span class="field-tag">&lt;meta name="description" content="..."&gt;</span>
+        </div>
+        <span class="field-guide">ideal: 120–158 chars</span>
+      </div>
+      <textarea id="f-desc" placeholder="A brief, compelling summary of your page that appears in search results..." oninput="check(this,'desc')"></textarea>
+      <div class="counter-row">
+        <div class="bar-track"><div class="bar-fill" id="bar-desc"></div></div>
+        <div class="pill" id="pill-desc">0/158</div>
+      </div>
+      <div class="hint" id="hint-desc"></div>
+    </div>
+ 
+    <div class="field-block">
+      <div class="field-head">
+        <div class="field-meta">
+          <span class="field-name">OG title</span>
+          <span class="field-tag">&lt;meta property="og:title" content="..."&gt;</span>
+        </div>
+        <span class="field-guide">max: 60 chars</span>
+      </div>
+      <input type="text" id="f-ogtitle" placeholder="Title shown when shared on Facebook, LinkedIn..." oninput="check(this,'ogtitle')">
+      <div class="counter-row">
+        <div class="bar-track"><div class="bar-fill" id="bar-ogtitle"></div></div>
+        <div class="pill" id="pill-ogtitle">0/60</div>
+      </div>
+      <div class="hint" id="hint-ogtitle"></div>
+    </div>
+ 
+    <div class="field-block">
+      <div class="field-head">
+        <div class="field-meta">
+          <span class="field-name">OG description</span>
+          <span class="field-tag">&lt;meta property="og:description" content="..."&gt;</span>
+        </div>
+        <span class="field-guide">max: 200 chars</span>
+      </div>
+      <textarea id="f-ogdesc" placeholder="Description shown in link previews on social platforms..." oninput="check(this,'ogdesc')"></textarea>
+      <div class="counter-row">
+        <div class="bar-track"><div class="bar-fill" id="bar-ogdesc"></div></div>
+        <div class="pill" id="pill-ogdesc">0/200</div>
+      </div>
+      <div class="hint" id="hint-ogdesc"></div>
+    </div>
+ 
+    <div class="field-block">
+      <div class="field-head">
+        <div class="field-meta">
+          <span class="field-name">Twitter / X title</span>
+          <span class="field-tag">&lt;meta name="twitter:title" content="..."&gt;</span>
+        </div>
+        <span class="field-guide">max: 70 chars</span>
+      </div>
+      <input type="text" id="f-twtitle" placeholder="Title shown in Twitter/X card previews..." oninput="check(this,'twtitle')">
+      <div class="counter-row">
+        <div class="bar-track"><div class="bar-fill" id="bar-twtitle"></div></div>
+        <div class="pill" id="pill-twtitle">0/70</div>
+      </div>
+      <div class="hint" id="hint-twtitle"></div>
+    </div>
+ 
+    <div class="field-block">
+      <div class="field-head">
+        <div class="field-meta">
+          <span class="field-name">Twitter / X description</span>
+          <span class="field-tag">&lt;meta name="twitter:description" content="..."&gt;</span>
+        </div>
+        <span class="field-guide">max: 200 chars</span>
+      </div>
+      <textarea id="f-twdesc" placeholder="Description shown in Twitter/X card previews..." oninput="check(this,'twdesc')"></textarea>
+      <div class="counter-row">
+        <div class="bar-track"><div class="bar-fill" id="bar-twdesc"></div></div>
+        <div class="pill" id="pill-twdesc">0/200</div>
+      </div>
+      <div class="hint" id="hint-twdesc"></div>
+    </div>
+ 
+  </div>
+</main>
+ 
+<footer>
+  <div class="footer-stat">
+    <div class="stat-item">
+      <span class="stat-label">Fields OK</span>
+      <span class="stat-val" id="stat-ok">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Warnings</span>
+      <span class="stat-val" id="stat-warn">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Over limit</span>
+      <span class="stat-val" id="stat-over">0</span>
+    </div>
+  </div>
+  <div class="footer-note">Start typing to see live feedback</div>
+</footer>
+ 
+<script>
+  const FIELDS = {
+    title:   { max: 60,  softMin: 50,  softMax: 60 },
+    desc:    { max: 158, softMin: 120, softMax: 158 },
+    ogtitle: { max: 60,  softMin: 1,   softMax: 60 },
+    ogdesc:  { max: 200, softMin: 1,   softMax: 200 },
+    twtitle: { max: 70,  softMin: 1,   softMax: 70 },
+    twdesc:  { max: 200, softMin: 1,   softMax: 200 },
+  };
+ 
+  const states = {};
+ 
+  function check(el, key) {
+    const cfg = FIELDS[key];
+    const len = el.value.length;
+    const pill = document.getElementById('pill-' + key);
+    const bar  = document.getElementById('bar-' + key);
+    const hint = document.getElementById('hint-' + key);
+ 
+    pill.textContent = len + '/' + cfg.max;
+ 
+    let state = 'empty';
+    if (len > cfg.max) {
+      state = 'over';
+      const n = len - cfg.max;
+      hint.textContent = n + ' char' + (n > 1 ? 's' : '') + ' over limit — will be truncated';
+    } else if (len === 0) {
+      state = 'empty';
+      hint.textContent = '';
+    } else if (len < cfg.softMin) {
+      state = 'warn';
+      const n = cfg.softMin - len;
+      hint.textContent = n + ' more char' + (n > 1 ? 's' : '') + ' to reach recommended minimum';
+    } else {
+      state = 'ok';
+      hint.textContent = 'Looks good';
+    }
+ 
+    pill.className = 'pill' + (state === 'empty' ? '' : ' ' + state);
+    hint.className = 'hint' + (state === 'empty' ? '' : ' ' + state);
+ 
+    const pct = Math.min((len / cfg.max) * 100, 100);
+    bar.style.width = pct + '%';
+    bar.style.background =
+      state === 'ok'   ? 'var(--ok)'     :
+      state === 'warn' ? 'var(--warn)'   :
+      state === 'over' ? 'var(--danger)' :
+      'var(--text3)';
+ 
+    states[key] = state;
+    updateStats();
+  }
+ 
+  function updateStats() {
+    const vals = Object.values(states);
+    const ok   = vals.filter(s => s === 'ok').length;
+    const warn = vals.filter(s => s === 'warn').length;
+    const over = vals.filter(s => s === 'over').length;
+ 
+    const okEl   = document.getElementById('stat-ok');
+    const warnEl = document.getElementById('stat-warn');
+    const overEl = document.getElementById('stat-over');
+ 
+    okEl.textContent   = ok;
+    warnEl.textContent = warn;
+    overEl.textContent = over;
+ 
+    okEl.className   = 'stat-val' + (ok > 0   ? ' lit' : '');
+    warnEl.className = 'stat-val' + (warn > 0 ? ' lit' : '');
+    overEl.className = 'stat-val' + (over > 0 ? ' lit' : '');
+  }
+</script>
+ 
+</body>
+</html>
+ 
