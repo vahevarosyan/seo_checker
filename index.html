@@ -3,537 +3,889 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SEO Meta Checker</title>
+  <title>SEO Meta Tag Checker — Preview & Validate Character Limits</title>
+  <meta name="description" content="Check your SEO title, meta description, Open Graph and Twitter tags instantly. See live Google search preview and validate character limits before you publish." />
+  <link rel="canonical" href="https://metacheck.io" />
+  <meta property="og:title" content="SEO Meta Tag Checker — metacheck.io" />
+  <meta property="og:description" content="Preview and validate your meta tags instantly. Google search preview, OG cards, character limits." />
+  <meta property="og:url" content="https://metacheck.io" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
     :root {
-      --bg: #0a0a0a;
-      --surface: #111111;
-      --surface2: #161616;
-      --border: #222;
-      --border2: #2e2e2e;
-      --text: #f0f0f0;
-      --text2: #777;
-      --text3: #444;
-      --accent: #e8ff47;
-      --ok: #3ecf8e;
-      --ok-bg: rgba(62,207,142,0.08);
-      --warn: #f5a524;
-      --warn-bg: rgba(245,165,36,0.08);
-      --danger: #f03e3e;
-      --danger-bg: rgba(240,62,62,0.08);
-      --mono: 'DM Mono', monospace;
-      --sans: 'DM Sans', sans-serif;
-      --radius: 10px;
+      --bg: #0a0a0a; --surface: #111; --surface2: #161616; --surface3: #1c1c1c;
+      --border: #1e1e1e; --border2: #2a2a2a;
+      --text: #f0f0f0; --text2: #888; --text3: #444;
+      --accent: #FFD600;
+      --ok: #3ecf8e; --ok-bg: rgba(62,207,142,0.08);
+      --warn: #f5a524; --warn-bg: rgba(245,165,36,0.08);
+      --danger: #f03e3e; --danger-bg: rgba(240,62,62,0.08);
+      --mono: 'DM Mono', monospace; --sans: 'DM Sans', sans-serif; --r: 10px;
     }
- 
-    html { font-size: 16px; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    [data-theme="light"] {
+      --bg: #f5f5f5; --surface: #ffffff; --surface2: #f0f0f0; --surface3: #e8e8e8;
+      --border: #e0e0e0; --border2: #cccccc;
+      --text: #111111; --text2: #555555; --text3: #999999;
+      --ok: #16a34a; --ok-bg: rgba(22,163,74,0.10);
+      --warn: #d97706; --warn-bg: rgba(217,119,6,0.10);
+      --danger: #dc2626; --danger-bg: rgba(220,38,38,0.10);
     }
- 
+    html { font-size: 15px; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* THEME SWITCHER */
+    .theme-switcher { display:flex; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:2px; }
+    .theme-btn { width:28px; height:28px; border:1px solid transparent; border-radius:6px; background:transparent; color:var(--text3); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+    .theme-btn:hover { background:var(--surface2); color:var(--text2); }
+    .theme-btn.active { background:var(--surface2); color:var(--text); border-color:var(--border2); }
+
     /* HEADER */
-    header {
-      width: 100%;
-      max-width: 680px;
-      padding: 2rem 0 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    header { padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .logo { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; color: var(--text3); }
+    .logo-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: pulse 2.5s ease-in-out infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.6);} }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .badge { font-family: var(--mono); font-size: 10px; padding: 3px 9px; border: 1px solid var(--border2); border-radius: 20px; color: var(--text3); }
+    .stat-pills { display: flex; gap: 10px; }
+    .st { font-family: var(--mono); font-size: 10px; display: flex; align-items: center; gap: 4px; color: var(--text3); }
+    .st-num { font-weight: 500; font-size: 11px; }
+    .st.ok .st-num{color:var(--ok);} .st.warn .st-num{color:var(--warn);} .st.over .st-num{color:var(--danger);}
+
+    /* APP */
+    .app { flex:1; display:flex; flex-direction:column; padding:1.5rem 2rem 2rem; gap:1rem; max-width:1400px; width:100%; margin:0 auto; }
+    .top-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+    h1 { font-size:1.05rem; font-weight:500; color:var(--text); letter-spacing:-0.01em; }
+
+    /* MAIN TABS */
+    .tabs { display:flex; gap:3px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:3px; }
+    .tab { padding:6px 14px; border:1px solid transparent; border-radius:7px; background:transparent; color:var(--text2); font-family:var(--sans); font-size:12px; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:6px; white-space:nowrap; }
+    .tab:hover { color:var(--text); background:var(--surface2); }
+    .tab.active { background:var(--surface2); color:var(--text); border-color:var(--border2); }
+    .tab.active svg { stroke: #FFD600; }
+    [data-theme="light"] .tab.active svg { stroke: #111111; }
+
+
+    /* SPLIT */
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:1rem; flex:1; align-items:start; }
+    .left-panel { display:flex; flex-direction:column; gap:.75rem; }
+    .panel { display:none; } .panel.active { display:flex; flex-direction:column; gap:.75rem; }
+
+    /* CARD / FIELDS */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+    .field-block { padding:1.1rem 1.25rem; transition:background .12s; }
+    .field-block+.field-block { border-top:1px solid var(--border); }
+    .field-block:hover { background:var(--surface2); }
+    .field-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:7px; gap:1rem; }
+    .field-left { display:flex; flex-direction:column; gap:2px; }
+    .field-name { font-size:12px; font-weight:500; color:var(--text); }
+    .field-tag { font-family:var(--mono); font-size:10px; color:var(--text3); }
+    .field-guide { font-family:var(--mono); font-size:10px; color:var(--text3); white-space:nowrap; }
+
+    textarea, input[type="text"] { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:8px 11px; font-size:13px; font-family:var(--sans); color:var(--text); outline:none; line-height:1.55; transition:border-color .15s; -webkit-appearance:none; }
+    textarea { resize:none; min-height:60px; }
+    input[type="text"] { height:36px; }
+    textarea:focus, input[type="text"]:focus { border-color:var(--border2); }
+
+    .counter-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
+    .bar-track { flex:1; height:2px; background:var(--border); border-radius:2px; overflow:hidden; }
+    .bar-fill { height:100%; width:0%; border-radius:2px; transition:width .15s ease,background-color .15s ease; background:var(--text3); }
+    .pill { font-family:var(--mono); font-size:10px; font-weight:500; padding:2px 8px; border-radius:20px; white-space:nowrap; min-width:48px; text-align:center; transition:all .15s; background:var(--surface2); color:var(--text3); border:1px solid var(--border); }
+    .pill.ok{background:var(--ok-bg);color:var(--ok);border-color:rgba(62,207,142,.2);}
+    .pill.warn{background:var(--warn-bg);color:var(--warn);border-color:rgba(245,165,36,.2);}
+    .pill.over{background:var(--danger-bg);color:var(--danger);border-color:rgba(240,62,62,.2);}
+    .hint { font-family:var(--mono); font-size:10px; color:transparent; margin-top:3px; min-height:14px; transition:color .15s; }
+    .hint.ok{color:var(--ok);} .hint.warn{color:var(--warn);} .hint.over{color:var(--danger);}
+
+    /* accordion removed in v2.5 */
+
+    /* FETCH BTN */
+    .fetch-row { display:flex; gap:8px; }
+    .fetch-row input[type="text"] { flex:1; }
+    .fetch-btn {
+      height:36px; padding:0 14px; border:1px solid var(--border2); border-radius:6px;
+      background:var(--surface2); color:var(--text2); font-family:var(--mono); font-size:11px;
+      cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;
+      transition:all .15s; flex-shrink:0;
     }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--mono);
-      font-size: 12px;
-      font-weight: 400;
-      letter-spacing: 0.06em;
-      color: var(--text3);
-    }
-    .logo-dot {
-      width: 7px; height: 7px;
-      background: var(--accent);
-      border-radius: 50%;
-      animation: pulse 2.5s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity:1; transform:scale(1); }
-      50% { opacity:0.4; transform:scale(0.6); }
-    }
-    .badge {
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 3px 9px;
-      border: 1px solid var(--border2);
-      border-radius: 20px;
-      color: var(--text3);
-    }
- 
-    /* HERO */
-    .hero {
-      width: 100%;
-      max-width: 680px;
-      padding: 3.5rem 0 2.5rem;
-    }
-    .kicker {
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      color: var(--accent);
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .kicker::before {
-      content: '';
-      display: inline-block;
-      width: 18px; height: 1px;
-      background: var(--accent);
-    }
-    h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 300;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      margin-bottom: 1rem;
-    }
-    h1 strong { font-weight: 500; color: var(--accent); }
-    .sub {
-      font-size: 14px;
-      color: var(--text2);
-      font-weight: 300;
-      line-height: 1.7;
-    }
- 
-    /* MAIN CARD */
-    main {
-      width: 100%;
-      max-width: 680px;
-      padding-bottom: 4rem;
-    }
- 
-    /* TAB SWITCHER */
-    .tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 4px;
-      margin-bottom: 1px;
-    }
-    .tab {
-      flex: 1;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 7px;
-      background: transparent;
-      color: var(--text2);
-      font-family: var(--sans);
-      font-size: 13px;
-      font-weight: 400;
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      white-space: nowrap;
-    }
-    .tab:hover { color: var(--text); background: var(--surface2); }
-    .tab.active {
-      background: var(--surface2);
-      color: var(--text);
-      border: 1px solid var(--border2);
-    }
-    .tab-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--text3);
-      transition: background 0.15s;
-      flex-shrink: 0;
-    }
-    .tab.active .tab-dot { background: var(--accent); }
- 
-    /* STATUS BAR under tabs */
-    .status-row {
-      display: flex;
-      justify-content: flex-end;
-      gap: 16px;
-      padding: 8px 2px;
-      margin-bottom: 4px;
-    }
-    .st {
-      font-family: var(--mono);
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      color: var(--text3);
-    }
-    .st-num {
-      font-weight: 500;
-      font-size: 12px;
-      min-width: 14px;
-      text-align: center;
-    }
-    .st.ok .st-num   { color: var(--ok); }
-    .st.warn .st-num { color: var(--warn); }
-    .st.over .st-num { color: var(--danger); }
- 
-    /* PANELS */
-    .panel { display: none; }
-    .panel.active { display: block; }
- 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
- 
-    .field-block {
-      padding: 1.25rem 1.5rem;
-      transition: background 0.12s;
-    }
-    .field-block + .field-block {
-      border-top: 1px solid var(--border);
-    }
-    .field-block:hover { background: var(--surface2); }
- 
-    .field-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      gap: 1rem;
-    }
-    .field-left { display: flex; flex-direction: column; gap: 2px; }
-    .field-name { font-size: 13px; font-weight: 500; color: var(--text); }
-    .field-tag  { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.02em; }
-    .field-guide { font-family: var(--mono); font-size: 10px; color: var(--text3); white-space: nowrap; }
- 
-    textarea, input[type="text"] {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 9px 12px;
-      font-size: 13.5px;
-      font-family: var(--sans);
-      color: var(--text);
-      outline: none;
-      line-height: 1.55;
-      transition: border-color 0.15s;
-      -webkit-appearance: none;
-    }
-    textarea { resize: none; min-height: 64px; }
-    input[type="text"] { height: 40px; }
-    textarea:focus, input[type="text"]:focus { border-color: var(--border2); }
- 
-    .counter-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .bar-track {
-      flex: 1; height: 2px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%; width: 0%;
-      border-radius: 2px;
-      transition: width 0.18s ease, background-color 0.18s ease;
-      background: var(--text3);
-    }
-    .pill {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 500;
-      padding: 2px 9px;
-      border-radius: 20px;
-      white-space: nowrap;
-      min-width: 54px;
-      text-align: center;
-      transition: all 0.18s;
-      background: var(--surface2);
-      color: var(--text3);
-      border: 1px solid var(--border);
-    }
-    .pill.ok   { background: var(--ok-bg);    color: var(--ok);     border-color: rgba(62,207,142,0.2); }
-    .pill.warn { background: var(--warn-bg);   color: var(--warn);   border-color: rgba(245,165,36,0.2); }
-    .pill.over { background: var(--danger-bg); color: var(--danger); border-color: rgba(240,62,62,0.2); }
- 
-    .hint {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: transparent;
-      margin-top: 4px;
-      min-height: 15px;
-      transition: color 0.18s;
-      letter-spacing: 0.01em;
-    }
-    .hint.ok   { color: var(--ok); }
-    .hint.warn { color: var(--warn); }
-    .hint.over { color: var(--danger); }
- 
-    /* FOOTER */
-    footer {
-      width: 100%;
-      max-width: 680px;
-      padding: 1.25rem 0 2rem;
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .footer-note { font-family: var(--mono); font-size: 11px; color: var(--text3); }
- 
-    @media (max-width: 720px) {
-      header, .hero, main, footer { padding-left: 1.25rem; padding-right: 1.25rem; }
-      .tab { font-size: 12px; padding: 7px 8px; }
-    }
+    .fetch-btn:hover { background:var(--surface3); color:var(--text); border-color:var(--accent); }
+    .fetch-btn.loading { color:var(--accent); border-color:var(--accent); pointer-events:none; }
+    .fetch-btn.success { color:var(--ok); border-color:rgba(62,207,142,.4); }
+    .fetch-btn.error   { color:var(--danger); border-color:rgba(240,62,62,.4); }
+    .fetch-error { font-family:var(--mono); font-size:10px; color:var(--danger); margin-top:4px; display:none; }
+    .fetch-error.visible { display:block; }
+
+    /* COPY BTN */
+    .copy-btn { display:flex; align-items:center; justify-content:center; gap:7px; width:100%; padding:10px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); color:var(--text2); font-family:var(--mono); font-size:11px; cursor:pointer; transition:all .15s; letter-spacing:.03em; }
+    .copy-btn:hover { background:var(--surface2); color:var(--text); border-color:var(--border2); }
+    .copy-btn.copied { color:var(--ok); border-color:rgba(62,207,142,.3); background:var(--ok-bg); }
+
+    /* RIGHT PANEL */
+    .right-panel { display:flex; flex-direction:column; gap:1rem; }
+    .preview-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:1.25rem; display:none; flex-direction:column; gap:1rem; }
+    .preview-card.active { display:flex; }
+
+    h2.preview-label { font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); font-weight:400; }
+
+    /* PREVIEW SUB-TABS (inside OG panel) */
+    .preview-subtabs { display:flex; gap:2px; background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:2px; }
+    .preview-subtab { flex:1; padding:5px 10px; border:1px solid transparent; border-radius:5px; background:transparent; color:var(--text3); font-family:var(--mono); font-size:10px; cursor:pointer; transition:all .15s; letter-spacing:.03em; text-align:center; }
+    .preview-subtab:hover { color:var(--text2); }
+    .preview-subtab.active { background:var(--surface); color:var(--text); border-color:var(--border2); }
+
+    /* GOOGLE SRP */
+    .google-srp { background:#fff; border-radius:8px; overflow:hidden; font-family:arial,sans-serif; }
+    .srp-searchbar { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid #e8eaed; }
+    .srp-g-logo { font-size:18px; font-weight:700; letter-spacing:-1px; flex-shrink:0; }
+    .srp-g-logo span:nth-child(1){color:#4285f4;} .srp-g-logo span:nth-child(2){color:#ea4335;}
+    .srp-g-logo span:nth-child(3){color:#fbbc04;} .srp-g-logo span:nth-child(4){color:#4285f4;}
+    .srp-g-logo span:nth-child(5){color:#34a853;} .srp-g-logo span:nth-child(6){color:#ea4335;}
+    .srp-search-input { flex:1; background:#f1f3f4; border:none; border-radius:24px; padding:6px 14px; font-size:13px; color:#202124; font-family:arial,sans-serif; outline:none; pointer-events:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .srp-search-icon { flex-shrink:0; color:#4285f4; }
+    .srp-results { padding:10px 16px 14px; }
+    .srp-result { padding:10px 0; }
+    .srp-site-row { display:flex; align-items:center; gap:8px; margin-bottom:3px; }
+    .srp-favicon { width:18px; height:18px; border-radius:50%; background:#e8eaed; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#555; flex-shrink:0; }
+    .srp-site-info { display:flex; flex-direction:column; line-height:1.2; }
+    .srp-domain { font-size:13px; color:#202124; }
+    .srp-url-crumb { font-size:11px; color:#4d5156; }
+    .srp-title { font-size:18px; color:#1a0dab; line-height:1.3; margin-bottom:3px; display:block; text-decoration:none; cursor:pointer; }
+    .srp-title:hover { text-decoration:underline; }
+    .srp-title.empty { color:#c0c0c0; font-size:15px; font-style:italic; }
+    .srp-desc { font-size:13.5px; color:#4d5156; line-height:1.58; }
+    .srp-desc.empty { color:#c0c0c0; font-style:italic; font-size:13px; }
+    .srp-ghost-wrap { filter:blur(3px); opacity:.55; pointer-events:none; user-select:none; }
+    .srp-ghost { padding:10px 0; border-top:1px solid #f0f0f0; }
+    .srp-ghost-site { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+    .srp-ghost-fav { width:18px; height:18px; border-radius:50%; background:#f0f0f0; flex-shrink:0; }
+    .ghost-line { height:10px; border-radius:4px; background:#f0f0f0; margin-bottom:5px; }
+    .ghost-title { width:65%; height:14px; border-radius:4px; background:#e8e8e8; margin-bottom:6px; }
+    .ghost-d1{width:95%;} .ghost-d2{width:80%;}
+    .ghost-domain-line{width:120px;height:10px;border-radius:4px;background:#f0f0f0;}
+
+    /* OG CARD */
+    .og-preview { border:1px solid #ddd; border-radius:8px; overflow:hidden; background:#fff; }
+    .og-image-area { width:100%; aspect-ratio:1.91/1; background:#f0f2f5; display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:background .15s; }
+    .og-image-area:hover { background:#e4e6eb; }
+    .og-image-area img { width:100%; height:100%; object-fit:contain; position:absolute; top:0; left:0; background:#e8eaed; }
+    .og-upload-hint { display:flex; flex-direction:column; align-items:center; gap:6px; color:#aaa; font-size:12px; pointer-events:none; }
+    .og-meta { padding:10px 14px 12px; border-top:1px solid #e0e0e0; }
+    .og-domain-label { font-size:11px; color:#8a8d91; text-transform:uppercase; margin-bottom:3px; }
+    .og-title-p { font-size:14px; font-weight:600; color:#1c1e21; line-height:1.3; margin-bottom:2px; }
+    .og-title-p.empty { color:#c5c5c5; font-weight:400; font-style:italic; }
+    .og-desc-p { font-size:12px; color:#606770; line-height:1.4; }
+    .og-desc-p.empty { color:#c5c5c5; font-style:italic; }
+
+    /* TWITTER CARD */
+    .tw-preview { border:1px solid #cfd9de; border-radius:12px; overflow:hidden; background:#fff; }
+    .tw-image-area { width:100%; aspect-ratio:1.91/1; background:#f7f9f9; display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:background .15s; }
+    .tw-image-area:hover { background:#eff3f4; }
+    .tw-image-area img { width:100%; height:100%; object-fit:contain; position:absolute; top:0; left:0; background:#f0f0f0; }
+    .tw-upload-hint { display:flex; flex-direction:column; align-items:center; gap:6px; color:#aaa; font-size:12px; pointer-events:none; }
+    .tw-meta { padding:10px 14px 12px; }
+    .tw-title-p { font-size:14px; font-weight:700; color:#0f1419; line-height:1.3; margin-bottom:2px; }
+    .tw-title-p.empty { color:#c5c5c5; font-weight:400; font-style:italic; }
+    .tw-desc-p { font-size:13px; color:#536471; line-height:1.4; margin-bottom:3px; }
+    .tw-desc-p.empty { color:#c5c5c5; font-style:italic; }
+    .tw-domain-label { font-size:12px; color:#536471; }
+
+    .img-file-input { display:none; }
+    .upload-note { font-family:var(--mono); font-size:10px; color:var(--text3); text-align:center; }
+    .img-size-warning { font-family:var(--mono); font-size:10px; color:var(--warn); margin-top:4px; display:none; }
+    .img-size-warning.visible { display:block; }
+
+    /* SUB-PANEL (right preview) */
+    .sub-panel { display:none; } .sub-panel.active { display:flex; flex-direction:column; gap:1rem; }
+    /* LEFT-SUB (left fields, synced with preview sub-tab) */
+    .left-sub { display:none; flex-direction:column; gap:.75rem; }
+    .left-sub.active { display:flex; }
+
+    /* ANALYZER TAG LIST */
+    .az-tag-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; margin-bottom:.75rem; }
+    .az-section-label { font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); padding:.65rem 1.25rem; background:var(--surface2); border-bottom:1px solid var(--border); }
+    .az-tag-row { padding:.85rem 1.25rem; border-bottom:1px solid var(--border); }
+    .az-tag-row:last-child { border-bottom:none; }
+    .az-tag-head { display:flex; align-items:baseline; justify-content:space-between; gap:.5rem; margin-bottom:4px; }
+    .az-tag-name { font-size:12px; font-weight:500; color:var(--text); }
+    .az-tag-code { font-family:var(--mono); font-size:10px; color:var(--text3); }
+    .az-tag-val { font-size:12.5px; color:var(--text2); line-height:1.5; word-break:break-word; }
+    .az-tag-val.missing { color:var(--text3); font-style:italic; }
+    .az-tag-val.missing::before { content:'✕ '; color:var(--danger); font-style:normal; }
+
+    footer { padding:.9rem 2rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .footer-note { font-family:var(--mono); font-size:10px; color:var(--text3); }
   </style>
 </head>
 <body>
- 
+
 <header>
-  <div class="logo"><div class="logo-dot"></div>SEO META CHECKER</div>
-  <div class="badge">v1.1</div>
+  <div class="logo"><div class="logo-dot"></div>METACHECK.IO</div>
+  <div class="header-right">
+    <div class="stat-pills">
+      <div class="st ok"><span class="st-num" id="stat-ok">0</span>&nbsp;ok</div>
+      <div class="st warn"><span class="st-num" id="stat-warn">0</span>&nbsp;short</div>
+      <div class="st over"><span class="st-num" id="stat-over">0</span>&nbsp;over</div>
+    </div>
+    <div class="theme-switcher">
+      <button class="theme-btn" onclick="setTheme('light')" title="Light mode">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+      <button class="theme-btn" onclick="setTheme('dark')" title="Dark mode">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </div>
 </header>
- 
-<div class="hero">
-  <div class="kicker">Meta tag analyzer</div>
-  <h1>Write it. <strong>Check it.</strong><br>Ship it.</h1>
-  <p class="sub">Paste your meta content — instantly see if it fits character limits.</p>
+
+<div class="app">
+  <div class="top-row">
+    <h1>SEO Meta Tag Checker</h1>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('google')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Google SEO
+      </button>
+      <button class="tab" onclick="switchTab('og')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Open Graph
+      </button>
+      <button class="tab" onclick="switchTab('analyze')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+        URL Analyzer
+      </button>
+    </div>
+  </div>
+
+  <div class="split">
+
+    <!-- ══ LEFT ══ -->
+    <div class="left-panel">
+
+      <!-- GOOGLE -->
+      <div class="panel active" id="panel-google">
+        <div class="card">
+          <div class="field-block">
+            <div class="field-head">
+              <div class="field-left">
+                <h3 class="field-name">Page URL</h3>
+                <span class="field-tag">&lt;link rel="canonical" href="..."&gt;</span>
+              </div>
+            </div>
+            <input type="text" id="f-url" placeholder="https://example.com/" oninput="upd()">
+          </div>
+          <div class="field-block">
+            <div class="field-head">
+              <div class="field-left">
+                <h3 class="field-name">Title tag</h3>
+                <span class="field-tag">&lt;title&gt;...&lt;/title&gt;</span>
+              </div>
+              <span class="field-guide">ideal: 50–60 chars</span>
+            </div>
+            <input type="text" id="f-title" placeholder="Homepage | Brand Name" oninput="check(this,'title');upd()">
+            <div class="counter-row"><div class="bar-track"><div class="bar-fill" id="bar-title"></div></div><div class="pill" id="pill-title">0/60</div></div>
+            <div class="hint" id="hint-title">&#8204;</div>
+          </div>
+          <div class="field-block">
+            <div class="field-head">
+              <div class="field-left">
+                <h3 class="field-name">Meta description</h3>
+                <span class="field-tag">&lt;meta name="description" content="..."&gt;</span>
+              </div>
+              <span class="field-guide">ideal: 120–158 chars</span>
+            </div>
+            <textarea id="f-desc" rows="3" placeholder="A brief, compelling summary of your page..." oninput="check(this,'desc');upd()"></textarea>
+            <div class="counter-row"><div class="bar-track"><div class="bar-fill" id="bar-desc"></div></div><div class="pill" id="pill-desc">0/158</div></div>
+            <div class="hint" id="hint-desc">&#8204;</div>
+          </div>
+        </div>
+        <button class="copy-btn" id="copy-google" onclick="copyHTML('google')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy as HTML meta tags
+        </button>
+      </div>
+
+      <!-- OG + TWITTER (fields switch with preview sub-tab) -->
+      <div class="panel" id="panel-og">
+
+        <!-- Facebook / LinkedIn fields -->
+        <div class="left-sub active" id="left-og">
+          <div class="card">
+            <div class="field-block">
+              <div class="field-head">
+                <div class="field-left">
+                  <h3 class="field-name">OG title</h3>
+                  <span class="field-tag">&lt;meta property="og:title" content="..."&gt;</span>
+                </div>
+                <span class="field-guide">max: 60 chars</span>
+              </div>
+              <input type="text" id="f-ogtitle" placeholder="Title shown on Facebook, LinkedIn..." oninput="check(this,'ogtitle');upd()">
+              <div class="counter-row"><div class="bar-track"><div class="bar-fill" id="bar-ogtitle"></div></div><div class="pill" id="pill-ogtitle">0/60</div></div>
+              <div class="hint" id="hint-ogtitle">&#8204;</div>
+            </div>
+            <div class="field-block">
+              <div class="field-head">
+                <div class="field-left">
+                  <h3 class="field-name">OG description</h3>
+                  <span class="field-tag">&lt;meta property="og:description" content="..."&gt;</span>
+                </div>
+                <span class="field-guide">max: 200 chars</span>
+              </div>
+              <textarea id="f-ogdesc" rows="3" placeholder="Description shown in social link previews..." oninput="check(this,'ogdesc');upd()"></textarea>
+              <div class="counter-row"><div class="bar-track"><div class="bar-fill" id="bar-ogdesc"></div></div><div class="pill" id="pill-ogdesc">0/200</div></div>
+              <div class="hint" id="hint-ogdesc">&#8204;</div>
+            </div>
+            <div class="field-block">
+              <div class="field-head">
+                <div class="field-left">
+                  <h3 class="field-name">OG URL</h3>
+                  <span class="field-tag">&lt;meta property="og:url" content="..."&gt;</span>
+                </div>
+              </div>
+              <input type="text" id="f-ogurl" placeholder="https://example.com/" oninput="upd()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Twitter / X fields -->
+        <div class="left-sub" id="left-twitter">
+          <div class="card">
+            <div class="field-block">
+              <div class="field-head">
+                <div class="field-left">
+                  <h3 class="field-name">Twitter / X title</h3>
+                  <span class="field-tag">&lt;meta name="twitter:title" content="..."&gt;</span>
+                </div>
+                <span class="field-guide">max: 70 chars</span>
+              </div>
+              <input type="text" id="f-twtitle" placeholder="Leave empty to inherit from OG title" oninput="check(this,'twtitle');upd()">
+              <div class="counter-row"><div class="bar-track"><div class="bar-fill" id="bar-twtitle"></div></div><div class="pill" id="pill-twtitle">0/70</div></div>
+              <div class="hint" id="hint-twtitle">&#8204;</div>
+            </div>
+            <div class="field-block">
+              <div class="field-head">
+                <div class="field-left">
+                  <h3 class="field-name">Twitter / X description</h3>
+                  <span class="field-tag">&lt;meta name="twitter:description" content="..."&gt;</span>
+                </div>
+                <span class="field-guide">max: 200 chars</span>
+              </div>
+              <textarea id="f-twdesc" rows="3" placeholder="Leave empty to inherit from OG description" oninput="check(this,'twdesc');upd()"></textarea>
+              <div class="counter-row"><div class="bar-track"><div class="bar-fill" id="bar-twdesc"></div></div><div class="pill" id="pill-twdesc">0/200</div></div>
+              <div class="hint" id="hint-twdesc">&#8204;</div>
+            </div>
+          </div>
+          <div style="padding:.9rem 1.25rem;border-top:1px solid var(--border);">
+            <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px;">
+              <span style="font-size:12px;font-weight:500;color:var(--text);">Page URL</span>
+              <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">&lt;meta property="og:url" content="..."&gt;</span>
+            </div>
+            <div style="position:relative;">
+              <input type="text" id="tw-url-display" readonly
+                style="width:100%;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;padding:8px 36px 8px 11px;font-size:13px;font-family:var(--sans);color:var(--text3);outline:none;cursor:default;height:36px;"
+                placeholder="https://example.com/">
+              <svg style="position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <p style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:5px;">Uses the same link you set in OG URL field</p>
+          </div>
+        </div>
+
+        <button class="copy-btn" id="copy-og" onclick="copyHTML('og')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy all as HTML meta tags
+        </button>
+      </div>
+
+
+      <!-- URL ANALYZER -->
+      <div class="panel" id="panel-analyze">
+        <div class="card">
+          <div class="field-block">
+            <div class="field-head">
+              <div class="field-left">
+                <h3 class="field-name">URL to analyze</h3>
+                <span class="field-tag">Any website URL</span>
+              </div>
+            </div>
+            <div class="fetch-row">
+              <input type="text" id="az-url" placeholder="https://example.com/" onkeydown="if(event.key==='Enter')runAnalyze()">
+              <button class="fetch-btn" id="az-btn" onclick="runAnalyze()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+                Analyze
+              </button>
+            </div>
+            <p class="fetch-error" id="az-error"></p>
+          </div>
+        </div>
+        <div id="az-tag-list" style="display:none;"></div>
+      </div>
+
+    </div>
+
+    <!-- ══ RIGHT ══ -->
+    <div class="right-panel">
+
+      <!-- GOOGLE PREVIEW -->
+      <div class="preview-card active" id="preview-google">
+        <h2 class="preview-label">Google Search Preview</h2>
+        <div class="google-srp">
+          <div class="srp-searchbar">
+            <div class="srp-g-logo"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></div>
+            <div class="srp-search-input" id="srp-search-input">Your page title or keyword</div>
+            <svg class="srp-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <div class="srp-results">
+            <div class="srp-result">
+              <div class="srp-site-row">
+                <div class="srp-favicon" id="srp-favicon">M</div>
+                <div class="srp-site-info">
+                  <span class="srp-domain" id="srp-domain">metacheck.io</span>
+                  <span class="srp-url-crumb" id="srp-url-crumb">https://metacheck.io</span>
+                </div>
+              </div>
+              <a class="srp-title empty" id="srp-title">Your page title will appear here</a>
+              <div class="srp-desc empty" id="srp-desc">Your meta description will appear here. Write a compelling summary that makes people want to click through to your page.</div>
+            </div>
+            <div class="srp-ghost-wrap">
+              <div class="srp-ghost">
+                <div class="srp-ghost-site"><div class="srp-ghost-fav"></div><div style="display:flex;flex-direction:column;gap:3px;"><div class="ghost-line ghost-domain-line"></div><div class="ghost-line" style="width:180px;height:9px;"></div></div></div>
+                <div class="ghost-title"></div><div class="ghost-line ghost-d1"></div><div class="ghost-line ghost-d2"></div>
+              </div>
+              <div class="srp-ghost">
+                <div class="srp-ghost-site"><div class="srp-ghost-fav"></div><div style="display:flex;flex-direction:column;gap:3px;"><div class="ghost-line ghost-domain-line"></div><div class="ghost-line" style="width:155px;height:9px;"></div></div></div>
+                <div class="ghost-title" style="width:55%;"></div><div class="ghost-line ghost-d1"></div><div class="ghost-line" style="width:70%;height:10px;border-radius:4px;background:#f0f0f0;margin-bottom:5px;"></div>
+              </div>
+              <div class="srp-ghost">
+                <div class="srp-ghost-site"><div class="srp-ghost-fav"></div><div style="display:flex;flex-direction:column;gap:3px;"><div class="ghost-line ghost-domain-line" style="width:90px;"></div><div class="ghost-line" style="width:200px;height:9px;"></div></div></div>
+                <div class="ghost-title" style="width:72%;"></div><div class="ghost-line ghost-d1"></div><div class="ghost-line ghost-d2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OG + TWITTER PREVIEW (with sub-tabs) -->
+      <div class="preview-card" id="preview-og">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+          <h2 class="preview-label" id="og-preview-label">Facebook / LinkedIn Preview</h2>
+          <div class="preview-subtabs">
+            <button class="preview-subtab active" onclick="switchPreview('og')">Facebook / LinkedIn</button>
+            <button class="preview-subtab" onclick="switchPreview('twitter')">Twitter / X</button>
+          </div>
+        </div>
+
+        <!-- OG sub-panel -->
+        <div class="sub-panel active" id="sub-og">
+          <div class="og-preview">
+            <div class="og-image-area" onclick="document.getElementById('og-img-input').click()">
+              <img id="og-img-preview" src="" alt="" style="display:none">
+              <div class="og-upload-hint" id="og-upload-hint">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                Click to upload OG image
+              </div>
+            </div>
+            <input type="file" id="og-img-input" class="img-file-input" accept="image/*" onchange="loadImg(this,'og-img-preview','og-upload-hint','og-size-warn',1200,630)">
+            <div class="og-meta">
+              <div class="og-domain-label" id="og-domain">METACHECK.IO</div>
+              <div class="og-title-p empty" id="og-title-p">OG title will appear here</div>
+              <div class="og-desc-p empty" id="og-desc-p">OG description will appear here</div>
+            </div>
+          </div>
+          <p class="upload-note">Click image to upload (1200×630px recommended)</p>
+          <p class="img-size-warning" id="og-size-warn"></p>
+        </div>
+
+        <!-- Twitter sub-panel -->
+        <div class="sub-panel" id="sub-twitter">
+          <div class="tw-preview">
+            <div class="tw-image-area" onclick="document.getElementById('tw-img-input').click()">
+              <img id="tw-img-preview" src="" alt="" style="display:none">
+              <div class="tw-upload-hint" id="tw-upload-hint">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                Click to upload card image
+              </div>
+            </div>
+            <input type="file" id="tw-img-input" class="img-file-input" accept="image/*" onchange="loadImg(this,'tw-img-preview','tw-upload-hint','tw-size-warn',1200,628)">
+            <div class="tw-meta">
+              <div class="tw-title-p empty" id="tw-title-p">Twitter title will appear here</div>
+              <div class="tw-desc-p empty" id="tw-desc-p">Twitter description will appear here</div>
+              <div class="tw-domain-label" id="tw-domain">metacheck.io</div>
+            </div>
+          </div>
+          <p class="upload-note">Click image to upload (1200×628px recommended)</p>
+          <p class="img-size-warning" id="tw-size-warn"></p>
+        </div>
+
+      </div>
+
+
+      <!-- ANALYZER PREVIEW -->
+      <div class="preview-card" id="preview-analyze">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <h2 class="preview-label" id="az-preview-label">Google Search Preview</h2>
+          <div class="preview-subtabs">
+            <button class="preview-subtab active" onclick="switchAzPreview('google')">Google</button>
+            <button class="preview-subtab" onclick="switchAzPreview('og')">Facebook / LinkedIn</button>
+            <button class="preview-subtab" onclick="switchAzPreview('twitter')">Twitter / X</button>
+          </div>
+        </div>
+        <div class="sub-panel active" id="az-sub-google">
+          <div class="google-srp">
+            <div class="srp-searchbar">
+              <div class="srp-g-logo"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></div>
+              <div class="srp-search-input" id="az-srp-q">Enter a URL to analyze</div>
+              <svg class="srp-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+            <div class="srp-results">
+              <div class="srp-result">
+                <div class="srp-site-row">
+                  <div class="srp-favicon" id="az-srp-fav">?</div>
+                  <div class="srp-site-info">
+                    <span class="srp-domain" id="az-srp-dom">—</span>
+                    <span class="srp-url-crumb" id="az-srp-url">—</span>
+                  </div>
+                </div>
+                <a class="srp-title empty" id="az-srp-title">Title will appear after analysis</a>
+                <div class="srp-desc empty" id="az-srp-desc">Description will appear after analysis</div>
+              </div>
+              <div class="srp-ghost-wrap">
+                <div class="srp-ghost"><div class="srp-ghost-site"><div class="srp-ghost-fav"></div><div style="display:flex;flex-direction:column;gap:3px;"><div class="ghost-line ghost-domain-line"></div><div class="ghost-line" style="width:180px;height:9px;"></div></div></div><div class="ghost-title"></div><div class="ghost-line ghost-d1"></div><div class="ghost-line ghost-d2"></div></div>
+                <div class="srp-ghost"><div class="srp-ghost-site"><div class="srp-ghost-fav"></div><div style="display:flex;flex-direction:column;gap:3px;"><div class="ghost-line ghost-domain-line"></div><div class="ghost-line" style="width:155px;height:9px;"></div></div></div><div class="ghost-title" style="width:55%;"></div><div class="ghost-line ghost-d1"></div><div class="ghost-line ghost-d2"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-panel" id="az-sub-og">
+          <div class="og-preview">
+            <div class="og-image-area" id="az-og-img" style="cursor:default;">
+              <div class="og-upload-hint" id="az-og-hint">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                No OG image found
+              </div>
+            </div>
+            <div class="og-meta">
+              <div class="og-domain-label" id="az-og-dom">—</div>
+              <div class="og-title-p empty" id="az-og-title">OG title not set</div>
+              <div class="og-desc-p empty" id="az-og-desc">OG description not set</div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-panel" id="az-sub-twitter">
+          <div class="tw-preview">
+            <div class="tw-image-area" id="az-tw-img" style="cursor:default;">
+              <div class="tw-upload-hint" id="az-tw-hint">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                No Twitter image found
+              </div>
+            </div>
+            <div class="tw-meta">
+              <div class="tw-title-p empty" id="az-tw-title">Twitter title not set</div>
+              <div class="tw-desc-p empty" id="az-tw-desc">Twitter description not set</div>
+              <div class="tw-domain-label" id="az-tw-dom">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
- 
-<main>
- 
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('google')">
-      <div class="tab-dot"></div> Google SEO
-    </button>
-    <button class="tab" onclick="switchTab('og')">
-      <div class="tab-dot"></div> Open Graph
-    </button>
-    <button class="tab" onclick="switchTab('twitter')">
-      <div class="tab-dot"></div> Twitter / X
-    </button>
-  </div>
- 
-  <div class="status-row">
-    <div class="st ok"><span class="st-num" id="stat-ok">0</span> ok</div>
-    <div class="st warn"><span class="st-num" id="stat-warn">0</span> short</div>
-    <div class="st over"><span class="st-num" id="stat-over">0</span> over</div>
-  </div>
- 
-  <!-- GOOGLE -->
-  <div class="panel active" id="panel-google">
-    <div class="card">
- 
-      <div class="field-block">
-        <div class="field-head">
-          <div class="field-left">
-            <span class="field-name">Title tag</span>
-            <span class="field-tag">&lt;title&gt;...&lt;/title&gt;</span>
-          </div>
-          <span class="field-guide">ideal: 50–60 chars</span>
-        </div>
-        <input type="text" id="f-title" placeholder="Homepage | Brand Name" oninput="check(this,'title')">
-        <div class="counter-row">
-          <div class="bar-track"><div class="bar-fill" id="bar-title"></div></div>
-          <div class="pill" id="pill-title">0/60</div>
-        </div>
-        <div class="hint" id="hint-title">‌</div>
-      </div>
- 
-      <div class="field-block">
-        <div class="field-head">
-          <div class="field-left">
-            <span class="field-name">Meta description</span>
-            <span class="field-tag">&lt;meta name="description" content="..."&gt;</span>
-          </div>
-          <span class="field-guide">ideal: 120–158 chars</span>
-        </div>
-        <textarea id="f-desc" rows="3" placeholder="A brief, compelling summary of your page..." oninput="check(this,'desc')"></textarea>
-        <div class="counter-row">
-          <div class="bar-track"><div class="bar-fill" id="bar-desc"></div></div>
-          <div class="pill" id="pill-desc">0/158</div>
-        </div>
-        <div class="hint" id="hint-desc">‌</div>
-      </div>
- 
-    </div>
-  </div>
- 
-  <!-- OPEN GRAPH -->
-  <div class="panel" id="panel-og">
-    <div class="card">
- 
-      <div class="field-block">
-        <div class="field-head">
-          <div class="field-left">
-            <span class="field-name">OG title</span>
-            <span class="field-tag">&lt;meta property="og:title" content="..."&gt;</span>
-          </div>
-          <span class="field-guide">max: 60 chars</span>
-        </div>
-        <input type="text" id="f-ogtitle" placeholder="Title shown when shared on Facebook, LinkedIn..." oninput="check(this,'ogtitle')">
-        <div class="counter-row">
-          <div class="bar-track"><div class="bar-fill" id="bar-ogtitle"></div></div>
-          <div class="pill" id="pill-ogtitle">0/60</div>
-        </div>
-        <div class="hint" id="hint-ogtitle">‌</div>
-      </div>
- 
-      <div class="field-block">
-        <div class="field-head">
-          <div class="field-left">
-            <span class="field-name">OG description</span>
-            <span class="field-tag">&lt;meta property="og:description" content="..."&gt;</span>
-          </div>
-          <span class="field-guide">max: 200 chars</span>
-        </div>
-        <textarea id="f-ogdesc" rows="3" placeholder="Description shown in social link previews..." oninput="check(this,'ogdesc')"></textarea>
-        <div class="counter-row">
-          <div class="bar-track"><div class="bar-fill" id="bar-ogdesc"></div></div>
-          <div class="pill" id="pill-ogdesc">0/200</div>
-        </div>
-        <div class="hint" id="hint-ogdesc">‌</div>
-      </div>
- 
-    </div>
-  </div>
- 
-  <!-- TWITTER -->
-  <div class="panel" id="panel-twitter">
-    <div class="card">
- 
-      <div class="field-block">
-        <div class="field-head">
-          <div class="field-left">
-            <span class="field-name">Twitter title</span>
-            <span class="field-tag">&lt;meta name="twitter:title" content="..."&gt;</span>
-          </div>
-          <span class="field-guide">max: 70 chars</span>
-        </div>
-        <input type="text" id="f-twtitle" placeholder="Title shown in Twitter / X card previews..." oninput="check(this,'twtitle')">
-        <div class="counter-row">
-          <div class="bar-track"><div class="bar-fill" id="bar-twtitle"></div></div>
-          <div class="pill" id="pill-twtitle">0/70</div>
-        </div>
-        <div class="hint" id="hint-twtitle">‌</div>
-      </div>
- 
-      <div class="field-block">
-        <div class="field-head">
-          <div class="field-left">
-            <span class="field-name">Twitter description</span>
-            <span class="field-tag">&lt;meta name="twitter:description" content="..."&gt;</span>
-          </div>
-          <span class="field-guide">max: 200 chars</span>
-        </div>
-        <textarea id="f-twdesc" rows="3" placeholder="Description shown in Twitter / X card previews..." oninput="check(this,'twdesc')"></textarea>
-        <div class="counter-row">
-          <div class="bar-track"><div class="bar-fill" id="bar-twdesc"></div></div>
-          <div class="pill" id="pill-twdesc">0/200</div>
-        </div>
-        <div class="hint" id="hint-twdesc">‌</div>
-      </div>
- 
-    </div>
-  </div>
- 
-</main>
- 
+
 <footer>
-  <div class="footer-note">seo-checker · all checks run locally</div>
+  <div class="footer-note">© 2026 metacheck.io</div>
 </footer>
- 
+
 <script>
-  const FIELDS = {
-    title:   { max: 60,  softMin: 50 },
-    desc:    { max: 158, softMin: 120 },
-    ogtitle: { max: 60,  softMin: 1 },
-    ogdesc:  { max: 200, softMin: 1 },
-    twtitle: { max: 70,  softMin: 1 },
-    twdesc:  { max: 200, softMin: 1 },
+const FIELDS = {
+  title:   {max:60,  softMin:50},
+  desc:    {max:158, softMin:120},
+  ogtitle: {max:60,  softMin:1},
+  ogdesc:  {max:200, softMin:1},
+  twtitle: {max:70,  softMin:1},
+  twdesc:  {max:200, softMin:1},
+};
+const states = {};
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function truncateHtml(text, max) {
+  if (!text || text.length <= max) return { html: text ? escHtml(text) : '', over: false };
+  let cut = max;
+  while (cut > 0 && text[cut] !== ' ') cut--;
+  if (cut === 0) cut = max;
+  const kept = text.slice(0, cut);
+  const over = text.slice(cut);
+  return {
+    html: escHtml(kept) + '<span style="background:#fff0f0;color:#c0392b;border-radius:2px;">' + escHtml(over) + '</span><span style="color:#c0392b;font-weight:700;">…</span>',
+    over: true
   };
- 
-  const states = {};
- 
-  function check(el, key) {
-    const cfg = FIELDS[key];
-    const len = el.value.length;
-    const pill = document.getElementById('pill-' + key);
-    const bar  = document.getElementById('bar-' + key);
-    const hint = document.getElementById('hint-' + key);
- 
-    pill.textContent = len + '/' + cfg.max;
- 
-    let state = 'empty';
-    if (len === 0) {
-      state = 'empty';
-      hint.textContent = '‌';
-    } else if (len > cfg.max) {
-      state = 'over';
-      const n = len - cfg.max;
-      hint.textContent = n + ' char' + (n > 1 ? 's' : '') + ' over — will be truncated by Google';
-    } else if (len < cfg.softMin) {
-      state = 'warn';
-      const n = cfg.softMin - len;
-      hint.textContent = n + ' more char' + (n > 1 ? 's' : '') + ' to reach recommended minimum';
-    } else {
-      state = 'ok';
-      hint.textContent = 'Looks good';
-    }
- 
-    pill.className = 'pill' + (state === 'empty' ? '' : ' ' + state);
-    hint.className = 'hint' + (state === 'empty' ? '' : ' ' + state);
- 
-    const pct = Math.min((len / cfg.max) * 100, 100);
-    bar.style.width = pct + '%';
-    bar.style.background =
-      state === 'ok'   ? 'var(--ok)'     :
-      state === 'warn' ? 'var(--warn)'   :
-      state === 'over' ? 'var(--danger)' : 'var(--text3)';
- 
-    states[key] = state;
-    updateStats();
+}
+
+function check(el, key) {
+  const cfg = FIELDS[key];
+  const len = el.value.length;
+  const pill = document.getElementById('pill-'+key);
+  const bar  = document.getElementById('bar-'+key);
+  const hint = document.getElementById('hint-'+key);
+  pill.textContent = len+'/'+cfg.max;
+  let state = 'empty';
+  if (len === 0) { hint.textContent = '​'; }
+  else if (len > cfg.max) { state='over'; hint.textContent=(len-cfg.max)+' char'+(len-cfg.max>1?'s':'')+' over — will be truncated'; }
+  else if (len < cfg.softMin) { state='warn'; hint.textContent=(cfg.softMin-len)+' more char'+(cfg.softMin-len>1?'s':'')+' to reach minimum'; }
+  else { state='ok'; hint.textContent='Looks good'; }
+  pill.className = 'pill'+(state==='empty'?'':' '+state);
+  hint.className = 'hint'+(state==='empty'?'':' '+state);
+  const pct = Math.min(len/cfg.max*100,100);
+  bar.style.width = pct+'%';
+  bar.style.background = state==='ok'?'var(--ok)':state==='warn'?'var(--warn)':state==='over'?'var(--danger)':'var(--text3)';
+  states[key] = state;
+  const vals = Object.values(states);
+  document.getElementById('stat-ok').textContent   = vals.filter(s=>s==='ok').length;
+  document.getElementById('stat-warn').textContent = vals.filter(s=>s==='warn').length;
+  document.getElementById('stat-over').textContent = vals.filter(s=>s==='over').length;
+}
+
+function upd() {
+  const url     = document.getElementById('f-url').value.trim();
+  const title   = document.getElementById('f-title').value;
+  const desc    = document.getElementById('f-desc').value;
+  const ogurl   = document.getElementById('f-ogurl').value.trim();
+  const ogtitle = document.getElementById('f-ogtitle').value;
+  const ogdesc  = document.getElementById('f-ogdesc').value;
+  const twtitle = document.getElementById('f-twtitle').value;
+  const twdesc  = document.getElementById('f-twdesc').value;
+
+  // Google search bar
+  document.getElementById('srp-search-input').textContent = title || 'Your page title or keyword';
+
+  // Google domain
+  let gDomain = 'metacheck.io', gUrl = 'https://metacheck.io', gLetter = 'M';
+  if (url) {
+    try { const u=new URL(url); gDomain=u.hostname; gUrl=url; gLetter=gDomain.charAt(0).toUpperCase(); }
+    catch(e) { if(url.length>2){gDomain=url.replace(/^https?:\/\//,'').split('/')[0];gUrl=url;gLetter=gDomain.charAt(0).toUpperCase();} }
   }
- 
-  function updateStats() {
-    const vals = Object.values(states);
-    document.getElementById('stat-ok').textContent   = vals.filter(s => s === 'ok').length;
-    document.getElementById('stat-warn').textContent = vals.filter(s => s === 'warn').length;
-    document.getElementById('stat-over').textContent = vals.filter(s => s === 'over').length;
+  document.getElementById('srp-favicon').textContent   = gLetter;
+  document.getElementById('srp-domain').textContent    = gDomain;
+  document.getElementById('srp-url-crumb').textContent = gUrl;
+
+  // Google title
+  const srpT = document.getElementById('srp-title');
+  if (!title) { srpT.innerHTML='Your page title will appear here'; srpT.className='srp-title empty'; }
+  else { const r=truncateHtml(title,60); srpT.innerHTML=r.html; srpT.className='srp-title'; }
+
+  // Google desc
+  const srpD = document.getElementById('srp-desc');
+  if (!desc) { srpD.innerHTML='Your meta description will appear here. Write a compelling summary that makes people want to click through to your page.'; srpD.className='srp-desc empty'; }
+  else { const r=truncateHtml(desc,158); srpD.innerHTML=r.html; srpD.className='srp-desc'; }
+
+  // OG domain
+  let ogDomain = 'yourdomain.com';
+  if (ogurl) {
+    try { ogDomain=new URL(ogurl).hostname; }
+    catch(e) { if(ogurl.length>2) ogDomain=ogurl.replace(/^https?:\/\//,'').split('/')[0]; }
   }
- 
-  function switchTab(name) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelector('[onclick="switchTab(\'' + name + '\')"]').classList.add('active');
-    document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('og-domain').textContent = ogDomain.toUpperCase();
+  document.getElementById('tw-domain').textContent = ogDomain;
+  var twUrlDisplay = document.getElementById('tw-url-display');
+  if (twUrlDisplay) {
+    var ogUrlVal = document.getElementById('f-ogurl').value.trim();
+    twUrlDisplay.value = ogUrlVal || '';
+    twUrlDisplay.placeholder = ogUrlVal ? '' : 'Uses the same link you set in OG URL field';
   }
+
+  // OG title
+  const ogT = document.getElementById('og-title-p');
+  if (!ogtitle) { ogT.innerHTML='OG title will appear here'; ogT.className='og-title-p empty'; }
+  else { const r=truncateHtml(ogtitle,60); ogT.innerHTML=r.html; ogT.className='og-title-p'; }
+
+  // OG desc
+  const ogD = document.getElementById('og-desc-p');
+  if (!ogdesc) { ogD.innerHTML='OG description will appear here'; ogD.className='og-desc-p empty'; }
+  else { const r=truncateHtml(ogdesc,200); ogD.innerHTML=r.html; ogD.className='og-desc-p'; }
+
+  // Twitter title — fallback to OG if empty
+  const twT = document.getElementById('tw-title-p');
+  const twEffTitle = twtitle || ogtitle;
+  if (!twEffTitle) { twT.innerHTML='Twitter title will appear here'; twT.className='tw-title-p empty'; }
+  else { const r=truncateHtml(twEffTitle,70); twT.innerHTML=r.html; twT.className='tw-title-p'+(twtitle?'':' tw-fallback'); }
+
+  // Twitter desc — fallback to OG if empty
+  const twD = document.getElementById('tw-desc-p');
+  const twEffDesc = twdesc || ogdesc;
+  if (!twEffDesc) { twD.innerHTML='Twitter description will appear here'; twD.className='tw-desc-p empty'; }
+  else { const r=truncateHtml(twEffDesc,200); twD.innerHTML=r.html; twD.className='tw-desc-p'+(twdesc?'':' tw-fallback'); }
+}
+
+function switchTab(name, pushState) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.preview-card').forEach(p=>p.classList.remove('active'));
+  document.querySelector('[onclick="switchTab(\''+name+'\')"]').classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  if (name==='analyze') document.getElementById('preview-analyze').classList.add('active');
+  else if (name==='og') document.getElementById('preview-og').classList.add('active');
+  else document.getElementById('preview-google').classList.add('active');
+  if (pushState !== false) {
+    const paths = {google:'/', og:'/open-graph', analyze:'/url-analyzer'};
+    window.history.pushState({tab:name}, '', paths[name]);
+  }
+}
+
+function switchPreview(name) {
+  document.querySelectorAll('.preview-subtab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sub-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('[onclick="switchPreview(\''+ name +'\')"]').classList.add('active');
+  document.getElementById('sub-'+name).classList.add('active');
+  document.querySelectorAll('.left-sub').forEach(p=>p.classList.remove('active'));
+  document.getElementById(name==='og'?'left-og':'left-twitter').classList.add('active');
+  var labels={og:'Facebook / LinkedIn Preview',twitter:'Twitter / X Preview'};
+  document.getElementById('og-preview-label').textContent=labels[name];
+  upd();
+}
+
+// accordion removed in v2.5
+
+function loadImg(input, imgId, hintId, warnId, expW, expH) {
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=document.getElementById(imgId);
+    img.src=e.target.result; img.style.display='block';
+    document.getElementById(hintId).style.display='none';
+    const tmp=new Image();
+    tmp.onload=()=>{
+      const warn=document.getElementById(warnId);
+      if(tmp.naturalWidth!==expW||tmp.naturalHeight!==expH){
+        warn.textContent='⚠ Image is '+tmp.naturalWidth+'×'+tmp.naturalHeight+'px — recommended '+expW+'×'+expH+'px. May appear cropped or distorted.';
+        warn.classList.add('visible');
+      } else { warn.classList.remove('visible'); }
+    };
+    tmp.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function copyHTML(tab) {
+  let html='';
+  if (tab==='google') {
+    const u=document.getElementById('f-url').value;
+    const t=document.getElementById('f-title').value;
+    const d=document.getElementById('f-desc').value;
+    html=(u?`<link rel="canonical" href="${u}">\n`:'')+(t?`<title>${t}</title>\n`:'')+(d?`<meta name="description" content="${d}">`:'');
+  } else {
+    const ot=document.getElementById('f-ogtitle').value;
+    const od=document.getElementById('f-ogdesc').value;
+    const ou=document.getElementById('f-ogurl').value;
+    const tt=document.getElementById('f-twtitle').value;
+    const td=document.getElementById('f-twdesc').value;
+    html=(ot?`<meta property="og:title" content="${ot}">\n`:'')
+        +(od?`<meta property="og:description" content="${od}">\n`:'')
+        +(ou?`<meta property="og:url" content="${ou}">\n`:'')
+        +`<meta name="twitter:card" content="summary_large_image">\n`
+        +(tt?`<meta name="twitter:title" content="${tt}">\n`:'')
+        +(td?`<meta name="twitter:description" content="${td}">`:'');
+  }
+  html=html.trim(); if(!html) return;
+  navigator.clipboard.writeText(html).then(()=>{
+    const btn=document.getElementById('copy-'+tab);
+    const orig=btn.innerHTML;
+    btn.classList.add('copied');
+    btn.innerHTML=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+    setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=orig;},2000);
+  });
+}
+
+function setTheme(mode) {
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+  const btn = document.querySelector(`[onclick="setTheme('${mode}')"]`);
+  if (btn) btn.classList.add('active');
+  localStorage.setItem('metacheck-theme', mode);
+  if (mode === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+}
+
+// Init theme + URL-based tab on load
+(function() {
+  // First visit: auto-detect system preference. Return visits: use saved choice.
+  const saved = localStorage.getItem('metacheck-theme');
+  let mode;
+  if (saved) {
+    mode = saved;
+  } else {
+    mode = 'dark';
+  }
+  if (mode === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.querySelector(`[onclick="setTheme('${mode}')"]`);
+    if (btn) btn.classList.add('active');
+    // Auto-switch tab based on URL path
+    const path = window.location.pathname;
+    if (path === '/open-graph') switchTab('og', false);
+    else if (path === '/url-analyzer') switchTab('analyze', false);
+    else switchTab('google', false);
+  });
+})();
+
+async function fetchMeta() {
+  const url = document.getElementById('f-url').value.trim();
+  if (!url) return;
+
+  const btn = document.getElementById('fetch-btn');
+  const errEl = document.getElementById('fetch-error');
+  errEl.classList.remove('visible');
+
+  btn.classList.remove('success','error');
+  btn.classList.add('loading');
+  btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Fetching...';
+
+  try {
+    const res = await fetch('/api/fetch-meta?url=' + encodeURIComponent(url));
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error);
+
+    // Fill Google SEO fields
+    if (data.title)   { document.getElementById('f-title').value = data.title;   check(document.getElementById('f-title'),'title'); }
+    if (data.desc)    { document.getElementById('f-desc').value  = data.desc;    check(document.getElementById('f-desc'),'desc'); }
+
+    // Fill OG fields
+    if (data.ogTitle) { document.getElementById('f-ogtitle').value = data.ogTitle; check(document.getElementById('f-ogtitle'),'ogtitle'); }
+    if (data.ogDesc)  { document.getElementById('f-ogdesc').value  = data.ogDesc;  check(document.getElementById('f-ogdesc'),'ogdesc'); }
+    if (data.ogUrl)   { document.getElementById('f-ogurl').value   = data.ogUrl; }
+    else if (data.fetchedUrl) { document.getElementById('f-ogurl').value = data.fetchedUrl; }
+
+    // Fill Twitter fields
+    if (data.twTitle) { document.getElementById('f-twtitle').value = data.twTitle; check(document.getElementById('f-twtitle'),'twtitle'); }
+    if (data.twDesc)  { document.getElementById('f-twdesc').value  = data.twDesc;  check(document.getElementById('f-twdesc'),'twdesc'); }
+
+    upd();
+
+    btn.classList.remove('loading');
+    btn.classList.add('success');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Done';
+    setTimeout(() => {
+      btn.classList.remove('success');
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg> Fetch';
+    }, 3000);
+
+  } catch(err) {
+    btn.classList.remove('loading');
+    btn.classList.add('error');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Failed';
+    errEl.textContent = err.message || 'Could not fetch URL';
+    errEl.classList.add('visible');
+    setTimeout(() => {
+      btn.classList.remove('error');
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg> Fetch';
+    }, 3000);
+  }
+}
 </script>
- 
 </body>
 </html>
- 
