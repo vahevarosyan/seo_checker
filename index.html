@@ -67,7 +67,7 @@
 
 
     /* SPLIT */
-    .split { display:grid; grid-template-columns:1fr 1fr; gap:1rem; flex:1; align-items:stretch; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:1rem; flex:1; align-items:start; }
     .left-panel { display:flex; flex-direction:column; gap:.75rem; }
     .panel { display:none; } .panel.active { display:flex; flex-direction:column; gap:.75rem; }
 
@@ -84,6 +84,7 @@
 
     textarea, input[type="text"] { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:8px 11px; font-size:13px; font-family:var(--sans); color:var(--text); outline:none; line-height:1.55; transition:border-color .15s; -webkit-appearance:none; }
     textarea { resize:none; min-height:60px; }
+    #f-desc { min-height:60px; }
     input[type="text"] { height:36px; }
     textarea:focus, input[type="text"]:focus { border-color:var(--border2); }
 
@@ -211,6 +212,15 @@
     .az-tag-val { font-size:12.5px; color:var(--text2); line-height:1.5; word-break:break-word; }
     .az-tag-val.missing { color:var(--text3); font-style:italic; }
     .az-tag-val.missing::before { content:'✕ '; color:var(--danger); font-style:normal; }
+
+    /* COPY TEXT BTN */
+    .copy-text-btn { display:flex; align-items:center; gap:6px; padding:7px 12px; background:var(--surface2); border:1px solid var(--border); border-radius:6px; color:var(--text2); font-family:var(--mono); font-size:10px; cursor:pointer; transition:all .15s; white-space:nowrap; }
+    .copy-text-btn:hover { color:var(--text); border-color:var(--border2); }
+    .copy-text-btn.copied { color:var(--ok); border-color:rgba(62,207,142,.3); background:var(--ok-bg); }
+    .az-copy-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:.5rem; }
+    .copy-all-btn { display:flex; align-items:center; gap:6px; width:100%; padding:9px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); color:var(--text2); font-family:var(--mono); font-size:11px; cursor:pointer; transition:all .15s; justify-content:center; margin-top:.25rem; }
+    .copy-all-btn:hover { color:var(--text); border-color:var(--border2); background:var(--surface2); }
+    .copy-all-btn.copied { color:var(--ok); border-color:rgba(62,207,142,.3); background:var(--ok-bg); }
 
     footer { padding:.9rem 2rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
     .footer-note { font-family:var(--mono); font-size:10px; color:var(--text3); }
@@ -413,6 +423,24 @@
           </div>
         </div>
         <div id="az-tag-list" style="display:none;"></div>
+        <div id="az-copy-row" class="az-copy-row" style="display:none;">
+          <button class="copy-text-btn" id="az-copy-google" onclick="azCopy('google')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Google SEO
+          </button>
+          <button class="copy-text-btn" id="az-copy-og" onclick="azCopy('og')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Open Graph
+          </button>
+          <button class="copy-text-btn" id="az-copy-tw" onclick="azCopy('twitter')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Twitter / X
+          </button>
+        </div>
+        <button class="copy-all-btn" id="az-copy-all" onclick="azCopy('all')" style="display:none;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy all
+        </button>
       </div>
 
     </div>
@@ -450,10 +478,7 @@
                 <div class="srp-ghost-site"><div class="srp-ghost-fav"></div><div style="display:flex;flex-direction:column;gap:3px;"><div class="ghost-line ghost-domain-line"></div><div class="ghost-line" style="width:155px;height:9px;"></div></div></div>
                 <div class="ghost-title" style="width:55%;"></div><div class="ghost-line ghost-d1"></div><div class="ghost-line" style="width:70%;height:10px;border-radius:4px;background:#f0f0f0;margin-bottom:5px;"></div>
               </div>
-              <div class="srp-ghost">
-                <div class="srp-ghost-site"><div class="srp-ghost-fav"></div><div style="display:flex;flex-direction:column;gap:3px;"><div class="ghost-line ghost-domain-line" style="width:90px;"></div><div class="ghost-line" style="width:200px;height:9px;"></div></div></div>
-                <div class="ghost-title" style="width:72%;"></div><div class="ghost-line ghost-d1"></div><div class="ghost-line ghost-d2"></div>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -1001,6 +1026,74 @@ function renderAz(d, rawUrl) {
   else{azTwD.textContent='Twitter description not set';azTwD.className='tw-desc-p empty';}
 
   switchAzPreview('google');
+
+  // Show copy buttons
+  document.getElementById('az-copy-row').style.display = 'flex';
+  document.getElementById('az-copy-all').style.display = 'flex';
+
+  // Store data for copy
+  window._azData = d;
+  window._azDomain = domain;
+}
+
+function azCopy(section) {
+  var d = window._azData || {};
+  var lines = [];
+  var btnId = '';
+  var nl = String.fromCharCode(10);
+
+  if (section === 'google') {
+    btnId = 'az-copy-google';
+    lines = [
+      'Title: ' + (d.title || 'Not set'),
+      'Description: ' + (d.desc || 'Not set')
+    ];
+  } else if (section === 'og') {
+    btnId = 'az-copy-og';
+    lines = [
+      'OG Title: ' + (d.ogTitle || 'Not set'),
+      'OG Description: ' + (d.ogDesc || 'Not set'),
+      'OG URL: ' + (d.ogUrl || 'Not set'),
+      'OG Image: ' + (d.ogImage || 'Not set')
+    ];
+  } else if (section === 'twitter') {
+    btnId = 'az-copy-tw';
+    lines = [
+      'Twitter Title: ' + (d.twTitle || 'Not set (inherits OG)'),
+      'Twitter Description: ' + (d.twDesc || 'Not set (inherits OG)'),
+      'Twitter Image: ' + (d.twImage || 'Not set (inherits OG)')
+    ];
+  } else if (section === 'all') {
+    btnId = 'az-copy-all';
+    lines = [
+      '=== Google SEO ===',
+      'Title: ' + (d.title || 'Not set'),
+      'Description: ' + (d.desc || 'Not set'),
+      '',
+      '=== Open Graph ===',
+      'OG Title: ' + (d.ogTitle || 'Not set'),
+      'OG Description: ' + (d.ogDesc || 'Not set'),
+      'OG URL: ' + (d.ogUrl || 'Not set'),
+      'OG Image: ' + (d.ogImage || 'Not set'),
+      '',
+      '=== Twitter / X ===',
+      'Twitter Title: ' + (d.twTitle || 'Not set (inherits OG)'),
+      'Twitter Description: ' + (d.twDesc || 'Not set (inherits OG)'),
+      'Twitter Image: ' + (d.twImage || 'Not set (inherits OG)')
+    ];
+  }
+
+  var text = lines.join(nl);
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    var orig = btn.innerHTML;
+    var origClass = btn.className;
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    setTimeout(function() { btn.className = origClass; btn.innerHTML = orig; }, 2000);
+  });
 }
 
 function switchAzPreview(name) {
