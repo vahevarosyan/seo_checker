@@ -50,10 +50,7 @@
     @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.6);} }
     .header-right { display: flex; align-items: center; gap: 12px; }
     .badge { font-family: var(--mono); font-size: 10px; padding: 3px 9px; border: 1px solid var(--border2); border-radius: 20px; color: var(--text3); }
-    .stat-pills { display: flex; gap: 10px; }
-    .st { font-family: var(--mono); font-size: 10px; display: flex; align-items: center; gap: 4px; color: var(--text3); }
-    .st-num { font-weight: 500; font-size: 11px; }
-    .st.ok .st-num{color:var(--ok);} .st.warn .st-num{color:var(--warn);} .st.over .st-num{color:var(--danger);}
+
 
     /* APP */
     .app { flex:1; display:flex; flex-direction:column; padding:1.5rem 2rem 2rem; gap:1rem; max-width:1400px; width:100%; margin:0 auto; }
@@ -70,7 +67,7 @@
 
 
     /* SPLIT */
-    .split { display:grid; grid-template-columns:1fr 1fr; gap:1rem; flex:1; align-items:start; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:1rem; flex:1; align-items:stretch; }
     .left-panel { display:flex; flex-direction:column; gap:.75rem; }
     .panel { display:none; } .panel.active { display:flex; flex-direction:column; gap:.75rem; }
 
@@ -224,11 +221,7 @@
 <header>
   <div class="logo"><div class="logo-dot"></div>METACHECK.IO</div>
   <div class="header-right">
-    <div class="stat-pills">
-      <div class="st ok"><span class="st-num" id="stat-ok">0</span>&nbsp;ok</div>
-      <div class="st warn"><span class="st-num" id="stat-warn">0</span>&nbsp;short</div>
-      <div class="st over"><span class="st-num" id="stat-over">0</span>&nbsp;over</div>
-    </div>
+
     <div class="theme-switcher">
       <button class="theme-btn" onclick="setTheme('light')" title="Light mode">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -601,10 +594,10 @@
 const FIELDS = {
   title:   {max:60,  softMin:50},
   desc:    {max:158, softMin:120},
-  ogtitle: {max:60,  softMin:1},
-  ogdesc:  {max:200, softMin:1},
-  twtitle: {max:70,  softMin:1},
-  twdesc:  {max:200, softMin:1},
+  ogtitle: {max:60,  softMin:0},
+  ogdesc:  {max:200, softMin:0},
+  twtitle: {max:70,  softMin:0},
+  twdesc:  {max:200, softMin:0},
 };
 const states = {};
 
@@ -635,7 +628,7 @@ function check(el, key) {
   let state = 'empty';
   if (len === 0) { hint.textContent = '​'; }
   else if (len > cfg.max) { state='over'; hint.textContent=(len-cfg.max)+' char'+(len-cfg.max>1?'s':'')+' over — will be truncated'; }
-  else if (len < cfg.softMin) { state='warn'; hint.textContent=(cfg.softMin-len)+' more char'+(cfg.softMin-len>1?'s':'')+' to reach minimum'; }
+  else if (cfg.softMin > 0 && len < cfg.softMin) { state='warn'; hint.textContent=(cfg.softMin-len)+' more char'+(cfg.softMin-len>1?'s':'')+' to reach minimum'; }
   else { state='ok'; hint.textContent='Looks good'; }
   pill.className = 'pill'+(state==='empty'?'':' '+state);
   hint.className = 'hint'+(state==='empty'?'':' '+state);
@@ -885,6 +878,135 @@ async function fetchMeta() {
       btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg> Fetch';
     }, 3000);
   }
+}
+function escH(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function trunc(text, max) {
+  if (!text || text.length <= max) return escH(text||'');
+  let cut=max; while(cut>0&&text[cut]!==' ')cut--; if(cut===0)cut=max;
+  return escH(text.slice(0,cut))+'<span style="background:#fff0f0;color:#c0392b;border-radius:2px;">'+escH(text.slice(cut))+'</span><span style="color:#c0392b;font-weight:700;">…</span>';
+}
+
+function cntClass(len,max){
+  if(!len) return 'missing';
+  if(len>max) return 'over';
+  return 'ok';
+}
+
+async function runAnalyze() {
+  const rawUrl = document.getElementById('az-url').value.trim();
+  if (!rawUrl) return;
+  const btn = document.getElementById('az-btn');
+  const errEl = document.getElementById('az-error');
+  errEl.textContent=''; errEl.classList.remove('visible');
+  btn.classList.add('loading');
+  btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Analyzing...';
+  try {
+    const res = await fetch('/api/fetch-meta?url='+encodeURIComponent(rawUrl));
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+    renderAz(d, rawUrl);
+    btn.classList.remove('loading'); btn.classList.add('success');
+    btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Done';
+    setTimeout(()=>{ btn.classList.remove('success'); btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg> Analyze'; },2500);
+  } catch(err) {
+    btn.classList.remove('loading'); btn.classList.add('error');
+    btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Failed';
+    errEl.textContent=err.message||'Could not fetch URL. Make sure it is publicly accessible.';
+    errEl.classList.add('visible');
+    setTimeout(()=>{ btn.classList.remove('error'); btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg> Analyze'; },3000);
+  }
+}
+
+function renderAz(d, rawUrl) {
+  let domain = rawUrl;
+  try { domain = new URL(/^https?:\/\//i.test(rawUrl)?rawUrl:'https://'+rawUrl).hostname; } catch(e){}
+  const finalUrl = d.fetchedUrl || rawUrl;
+
+  const sections = [
+    { label:'Google SEO', items:[
+      {name:'Title tag', code:'<title>', val:d.title, max:60},
+      {name:'Meta description', code:'<meta name="description">', val:d.desc, max:158},
+    ]},
+    { label:'Open Graph', items:[
+      {name:'OG title', code:'og:title', val:d.ogTitle, max:60},
+      {name:'OG description', code:'og:description', val:d.ogDesc, max:200},
+      {name:'OG URL', code:'og:url', val:d.ogUrl, noCount:true},
+      {name:'OG image', code:'og:image', val:d.ogImage, noCount:true},
+    ]},
+    { label:'Twitter / X', items:[
+      {name:'Twitter title', code:'twitter:title', val:d.twTitle, max:70},
+      {name:'Twitter description', code:'twitter:description', val:d.twDesc, max:200},
+      {name:'Twitter image', code:'twitter:image', val:d.twImage, noCount:true},
+    ]},
+  ];
+
+  let html='';
+  sections.forEach(s=>{
+    html+='<div class="az-tag-card"><div class="az-section-label">'+s.label+'</div>';
+    s.items.forEach(t=>{
+      const hasVal=!!(t.val&&t.val.trim());
+      const len=hasVal?t.val.length:0;
+      const cls=t.noCount?(hasVal?'ok':'missing'):cntClass(len,t.max);
+      const countHtml=(!t.noCount&&hasVal)?'<span class="pill '+cls+'">'+len+'/'+t.max+'</span>':'';
+      const valHtml=hasVal
+        ?'<div class="az-tag-val">'+(t.noCount?escH(t.val):trunc(t.val,t.max))+'</div>'
+        :'<div class="az-tag-val missing">Not set</div>';
+      html+='<div class="az-tag-row"><div class="az-tag-head"><span><span class="az-tag-name">'+t.name+'</span> <span class="az-tag-code">'+t.code+'</span></span>'+countHtml+'</div>'+valHtml+'</div>';
+    });
+    html+='</div>';
+  });
+
+  const tagList=document.getElementById('az-tag-list');
+  tagList.innerHTML=html; tagList.style.display='block';
+
+  // Google preview
+  document.getElementById('az-srp-q').textContent=d.title||domain;
+  document.getElementById('az-srp-fav').textContent=domain.charAt(0).toUpperCase();
+  document.getElementById('az-srp-dom').textContent=domain;
+  document.getElementById('az-srp-url').textContent=finalUrl;
+  const azT=document.getElementById('az-srp-title');
+  if(d.title){azT.innerHTML=trunc(d.title,60);azT.className='srp-title';}
+  else{azT.textContent='Title tag not set';azT.className='srp-title empty';}
+  const azD=document.getElementById('az-srp-desc');
+  if(d.desc){azD.innerHTML=trunc(d.desc,158);azD.className='srp-desc';}
+  else{azD.textContent='Meta description not set';azD.className='srp-desc empty';}
+
+  // OG
+  document.getElementById('az-og-dom').textContent=domain.toUpperCase();
+  const ogImg=document.getElementById('az-og-img');
+  if(d.ogImage){ ogImg.innerHTML='<img src="'+escH(d.ogImage)+'" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">'; }
+  const azOgT=document.getElementById('az-og-title');
+  if(d.ogTitle){azOgT.innerHTML=trunc(d.ogTitle,60);azOgT.className='og-title-p';}
+  else{azOgT.textContent='OG title not set';azOgT.className='og-title-p empty';}
+  const azOgD=document.getElementById('az-og-desc');
+  if(d.ogDesc){azOgD.innerHTML=trunc(d.ogDesc,200);azOgD.className='og-desc-p';}
+  else{azOgD.textContent='OG description not set';azOgD.className='og-desc-p empty';}
+
+  // Twitter
+  document.getElementById('az-tw-dom').textContent=domain;
+  const twImg=document.getElementById('az-tw-img');
+  const twSrc=d.twImage||d.ogImage;
+  if(twSrc){ twImg.innerHTML='<img src="'+escH(twSrc)+'" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">'; }
+  const azTwT=document.getElementById('az-tw-title');
+  const effTw=d.twTitle||d.ogTitle;
+  if(effTw){azTwT.innerHTML=trunc(effTw,70);azTwT.className='tw-title-p';}
+  else{azTwT.textContent='Twitter title not set';azTwT.className='tw-title-p empty';}
+  const azTwD=document.getElementById('az-tw-desc');
+  const effTwD=d.twDesc||d.ogDesc;
+  if(effTwD){azTwD.innerHTML=trunc(effTwD,200);azTwD.className='tw-desc-p';}
+  else{azTwD.textContent='Twitter description not set';azTwD.className='tw-desc-p empty';}
+
+  switchAzPreview('google');
+}
+
+function switchAzPreview(name) {
+  document.querySelectorAll('#preview-analyze .preview-subtab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#preview-analyze .sub-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('[onclick="switchAzPreview(''+name+'')"]').classList.add('active');
+  document.getElementById('az-sub-'+name).classList.add('active');
+  const labels={google:'Google Search Preview',og:'Facebook / LinkedIn Preview',twitter:'Twitter / X Preview'};
+  document.getElementById('az-preview-label').textContent=labels[name];
 }
 </script>
 </body>
