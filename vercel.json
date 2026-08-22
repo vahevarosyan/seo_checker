@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/open-graph", "destination": "/index.html" },
+    { "source": "/url-analyzer", "destination": "/index.html" }
+  ]
+}
