@@ -1,5 +1,3 @@
-export const config = { runtime: 'edge' };
-
 export default async function handler(req) {
   const { searchParams } = new URL(req.url);
   let url = searchParams.get('url');
@@ -15,16 +13,22 @@ export default async function handler(req) {
 
   const apiKey = process.env.SCRAPER_API_KEY;
 
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: 'API key not configured' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+
   try {
-    const scraperUrl = 'http://api.scraperapi.com?api_key=' + apiKey + '&url=' + encodeURIComponent(url) + '&render=false';
+    const scraperUrl = `https://api.scraperapi.com/?api_key=${apiKey}&url=${encodeURIComponent(url)}&render=false`;
 
     const res = await fetch(scraperUrl, {
-      headers: { 'Accept': 'text/html' },
-      signal: AbortSignal.timeout(15000)
+      signal: AbortSignal.timeout(20000)
     });
 
     if (!res.ok) {
-      return new Response(JSON.stringify({ error: 'Failed to fetch: ' + res.status }), {
+      return new Response(JSON.stringify({ error: `ScraperAPI error: ${res.status}` }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
@@ -53,8 +57,7 @@ export default async function handler(req) {
     const twDesc  = get(/<meta[^>]+name=["']twitter:description["'][^>]+content=["']([^"']*)["']/i)
                  || get(/<meta[^>]+content=["']([^"']*)["'][^>]+name=["']twitter:description["']/i);
     const twImage = get(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']*)["']/i)
-                 || get(/<meta[^>]+content=["']([^"']*)["'][^>]+name=["']twitter:image["']/i)
-                 || get(/<meta[^>]+name=["']twitter:image:src["'][^>]+content=["']([^"']*)["']/i);
+                 || get(/<meta[^>]+content=["']([^"']*)["'][^>]+name=["']twitter:image["']/i);
 
     return new Response(JSON.stringify({
       title, desc, ogTitle, ogDesc, ogUrl, ogImage,
