@@ -1,3 +1,7 @@
+export const config = {
+  runtime: 'nodejs'
+};
+
 export default async function handler(req) {
   const { searchParams } = new URL(req.url);
   let url = searchParams.get('url');
@@ -24,11 +28,11 @@ export default async function handler(req) {
     const scraperUrl = `https://api.scraperapi.com/?api_key=${apiKey}&url=${encodeURIComponent(url)}&render=false`;
 
     const res = await fetch(scraperUrl, {
-      signal: AbortSignal.timeout(20000)
+      signal: AbortSignal.timeout(25000)
     });
 
     if (!res.ok) {
-      return new Response(JSON.stringify({ error: `ScraperAPI error: ${res.status}` }), {
+      return new Response(JSON.stringify({ error: `Failed to fetch: ${res.status}` }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
